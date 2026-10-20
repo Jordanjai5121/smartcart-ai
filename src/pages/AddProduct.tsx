@@ -6,7 +6,7 @@ export default function AddProduct(){
  function submit(e:FormEvent){e.preventDefault();const price=Number(f.price),target=f.target?Number(f.target):undefined;
   if(!f.name.trim())return setErr('Product name is required.');if(!(price>0))return setErr('Enter a valid price in ₹.');
   if(target!==undefined&&!(target>0))return setErr('Target price must be a positive number.');
-  if(f.url&&!/^https?:\\/\\//.test(f.url))return setErr('Product link must start with http:// or https://');
+  if(f.url&&!/^https?:\/\//.test(f.url))return setErr('Product link must start with http:// or https://');
   addProduct({name:f.name.trim(),brand:f.brand.trim(),category:f.category,store:f.store,price,targetPrice:target,url:f.url||undefined});nav('/');}
  return <><PageHeader title="Add Product" sub="Prices you enter are saved as “entered by you” — nothing is fetched from any marketplace"/>
   <form onSubmit={submit} className="card grid max-w-2xl gap-3 sm:grid-cols-2">
