@@ -10,5 +10,11 @@ export default function Layout(){
    <nav className="flex gap-1 overflow-x-auto px-2 pb-2 md:flex-col md:overflow-visible">
     {nav.map(([to,l])=><NavLink key={to} to={to} end={to==='/'} className={cls}>{l}{badge(to)>0&&<span className="ml-2 rounded-full bg-brand-600 px-1.5 text-[10px] text-white">{badge(to)}</span>}</NavLink>)}
    </nav></aside>
-  <main className="min-w-0 flex-1 p-4 sm:p-6"><Outlet/></main></div>;
+  <div className="min-w-0 flex-1">
+   <main className="p-4 sm:p-6"><Outlet/></main>
+   <footer className="border-t px-4 py-4 text-center text-xs text-slate-500 sm:px-6">
+    As an Amazon Associate I earn from qualifying purchases. Product prices shown in SmartCart AI may be entered manually and are not guaranteed to be live marketplace prices.
+   </footer>
+  </div>
+ </div>;
 }
