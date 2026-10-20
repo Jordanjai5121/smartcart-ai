@@ -7,12 +7,10 @@ const ASSOCIATE_TAG = 'smartcartai0c-21';
 
 function getAmazonAffiliateUrl(url?: string) {
   if (!url) return undefined;
-
   try {
     const parsed = new URL(url);
     const host = parsed.hostname.toLowerCase();
     if (host !== 'amazon.in' && host !== 'www.amazon.in') return undefined;
-
     parsed.searchParams.set('tag', ASSOCIATE_TAG);
     return parsed.toString();
   } catch {
@@ -21,10 +19,13 @@ function getAmazonAffiliateUrl(url?: string) {
 }
 
 export default function ProductCard({ p }: { p: Product }) {
-  const { bestOffer, wishlist, toggleWishlist, addToCart } = useStore();
+  const { bestOffer, offers, wishlist, toggleWishlist, addToCart } = useStore();
   const o = bestOffer(p.id);
   const liked = wishlist.some(w => w.productId === p.id);
-  const affiliateUrl = o?.store === 'Amazon.in' ? getAmazonAffiliateUrl(o.url) : undefined;
+  const amazonOffer = offers
+    .filter(offer => offer.productId === p.id && offer.store === 'Amazon.in' && Boolean(offer.url))
+    .sort((a, b) => a.price - b.price)[0];
+  const affiliateUrl = getAmazonAffiliateUrl(amazonOffer?.url);
   const hit = o && p.targetPrice !== undefined && o.price <= p.targetPrice;
 
   return (
@@ -52,17 +53,12 @@ export default function ProductCard({ p }: { p: Product }) {
           Add to cart
         </button>
         {affiliateUrl && (
-          <a
-            className="btn w-full text-center"
-            href={affiliateUrl}
-            target="_blank"
-            rel="sponsored nofollow noopener noreferrer"
-          >
+          <a className="btn w-full text-center" href={affiliateUrl} target="_blank" rel="sponsored nofollow noopener noreferrer">
             Buy on Amazon ↗
           </a>
         )}
       </div>
-      {o?.store === 'Amazon.in' && !affiliateUrl && (
+      {offers.some(offer => offer.productId === p.id && offer.store === 'Amazon.in') && !affiliateUrl && (
         <p className="text-xs text-slate-500">Add a valid Amazon.in product URL to enable the affiliate button.</p>
       )}
     </div>
