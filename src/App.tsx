@@ -25,5 +25,9 @@ export default function App() {
         </Route>
       </Routes>
     </AuthGate>
+    return (<>
+  <AuthGate>...</AuthGate>
+  <WhatsAppButton />
+</>);
   );
 }
