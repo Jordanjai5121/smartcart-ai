@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useStore } from '../store/store';
 import { inr } from '../lib/format';
 import { parseAmazonUrl } from '../lib/amazon';
+import { notifyOnce } from '../lib/notify';
 
 const ASSOCIATE_TAG = 'smartcartai0c-21';
 
@@ -51,6 +52,17 @@ export default function AlertsBanner() {
       buy: parsed ? `${parsed.url}?tag=${ASSOCIATE_TAG}` : undefined,
     });
   }
+
+  const keys = alerts.map(a => a.key).join('|');
+
+  useEffect(() => {
+    (async () => {
+      for (const a of alerts) {
+        const why = a.hitTarget ? 'reached your target' : `dropped ${a.dropPct.toFixed(0)}%`;
+        await notifyOnce(a.key, '🔔 SmartCart price alert', `${a.name} is now ${inr(a.price)} · ${why}`);
+      }
+    })();
+  }, [keys]);
 
   const visible = alerts.filter(a => !hidden.includes(a.key));
   if (visible.length === 0) return null;
