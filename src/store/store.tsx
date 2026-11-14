@@ -47,6 +47,7 @@ interface Ctx {
   addProduct(p: NewProduct): string;
   updateProduct(id: string, p: NewProduct): void;
   deleteProduct(id: string): void;
+  updatePrice(id: string, price: number): void;
   addOffer(productId: string, store: string, price: number): void;
   addPricePoint(productId: string, price: number): void;
   toggleWishlist(id: string): void;
@@ -319,6 +320,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (error) console.error('Product delete failed:', error.message);
     })();
   };
+  const updatePrice = (id: string, price: number) => {
+    const offer = offers.find(o => o.productId === id);
+    if (!offer) return;
+
+    setOffers(old => old.map(o => o.id === offer.id ? { ...o, price } : o));
+    addPricePoint(id, price);
+
+    if (!isUuid(offer.id)) return;
+
+    void (async () => {
+      const { error } = await supabase.from('offers')
+        .update({ price }).eq('id', offer.id);
+
+      if (error) console.error('Price update failed:', error.message);
+    })();
+  };
   const addOffer = (productId: string, store: string, price: number) => {
     const offer: Offer = {
       id: uid(),
@@ -486,6 +503,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     addProduct,
     updateProduct,
     deleteProduct,
+    updatePrice,
     addOffer,
     addPricePoint,
     toggleWishlist,
