@@ -45,6 +45,8 @@ interface Ctx {
   cart: CartItem[];
   settings: Settings;
   addProduct(p: NewProduct): string;
+  updateProduct(id: string, p: NewProduct): void;
+  deleteProduct(id: string): void;
   addOffer(productId: string, store: string, price: number): void;
   addPricePoint(productId: string, price: number): void;
   toggleWishlist(id: string): void;
@@ -260,6 +262,63 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return id;
   };
 
+  const updateProduct = (id: string, p: NewProduct) => {
+    const offer = offers.find(o => o.productId === id);
+
+    setProducts(old => old.map(x => x.id === id
+      ? { ...x, name: p.name, brand: p.brand, category: p.category, targetPrice: p.targetPrice }
+      : x));
+
+    if (offer) {
+      setOffers(old => old.map(o => o.id === offer.id
+        ? { ...o, store: p.store, price: p.price, url: p.url }
+        : o));
+      if (offer.price !== p.price) addPricePoint(id, p.price);
+    }
+
+    if (!isUuid(id)) return;
+
+    void (async () => {
+      const { error } = await supabase.from('products').update({
+        name: p.name,
+        brand: p.brand || null,
+        category: p.category,
+        target_price: p.targetPrice ?? null,
+      }).eq('id', id);
+
+      if (error) console.error('Product update failed:', error.message);
+
+      if (offer && isUuid(offer.id)) {
+        const { error: offerError } = await supabase.from('offers').update({
+          store: p.store,
+          price: p.price,
+          url: p.url ?? null,
+        }).eq('id', offer.id);
+
+        if (offerError) console.error('Offer update failed:', offerError.message);
+      }
+    })();
+  };
+
+  const deleteProduct = (id: string) => {
+    setProducts(old => old.filter(x => x.id !== id));
+    setOffers(old => old.filter(o => o.productId !== id));
+    setHistory(old => old.filter(h => h.productId !== id));
+    setWishlist(old => old.filter(w => w.productId !== id));
+    setCart(old => old.filter(c => c.productId !== id));
+
+    if (!isUuid(id)) return;
+
+    void (async () => {
+      await supabase.from('offers').delete().eq('product_id', id);
+      await supabase.from('price_points').delete().eq('product_id', id);
+      await supabase.from('wishlist').delete().eq('product_id', id);
+      await supabase.from('cart_items').delete().eq('product_id', id);
+      const { error } = await supabase.from('products').delete().eq('id', id);
+
+      if (error) console.error('Product delete failed:', error.message);
+    })();
+  };
   const addOffer = (productId: string, store: string, price: number) => {
     const offer: Offer = {
       id: uid(),
@@ -425,6 +484,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     cart,
     settings,
     addProduct,
+    updateProduct,
+    deleteProduct,
     addOffer,
     addPricePoint,
     toggleWishlist,
