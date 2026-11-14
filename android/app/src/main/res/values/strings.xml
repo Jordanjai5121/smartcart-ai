@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SmartCartAI</string>
+    <string name="title_activity_main">SmartCartAI</string>
+    <string name="package_name">com.smartcartai.app</string>
+    <string name="custom_url_scheme">com.smartcartai.app</string>
+</resources>

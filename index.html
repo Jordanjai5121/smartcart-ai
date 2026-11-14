@@ -7,6 +7,14 @@
     <link rel="icon" type="image/png" href="/icon-192.png" />
     <link rel="apple-touch-icon" href="/icon-192.png" />
     <title>SmartCart AI – Personal Edition</title>
+    <style>
+      .native body { padding-top: max(env(safe-area-inset-top), 32px); }
+    </style>
+    <script>
+      if (window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform()) {
+        document.documentElement.classList.add('native');
+      }
+    </script>
   </head>
   <body class="bg-slate-50">
     <div id="root"></div>
