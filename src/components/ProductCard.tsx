@@ -3,18 +3,10 @@ import type { Product } from '../types';
 import { useStore } from '../store/store';
 import { inr } from '../lib/format';
 import { SourceBadge } from './ui';
-import { parseAmazonUrl } from '../lib/amazon';
+import { amazonAffiliateUrl, parseAmazonUrl } from '../lib/amazon';
 import { CATEGORIES, STORES } from '../data/demo';
 
-const ASSOCIATE_TAG = 'smartcartai0c-21';
 const DAY = 24 * 60 * 60 * 1000;
-
-function getAmazonAffiliateUrl(url?: string) {
-  if (!url) return undefined;
-  const parsed = parseAmazonUrl(url);
-  if (!parsed) return undefined;
-  return `${parsed.url}?tag=${ASSOCIATE_TAG}`;
-}
 
 function fmtDate(iso: string) {
   return new Date(iso).toLocaleString('en-IN', {
@@ -36,7 +28,7 @@ export default function ProductCard({ p }: { p: Product }) {
   const amazonOffer = offers
     .filter(offer => offer.productId === p.id && offer.store === 'Amazon.in' && Boolean(offer.url))
     .sort((a, b) => a.price - b.price)[0];
-  const affiliateUrl = getAmazonAffiliateUrl(amazonOffer?.url);
+  const affiliateUrl = amazonAffiliateUrl(amazonOffer?.url);
   const hit = o && p.targetPrice !== undefined && o.price <= p.targetPrice;
   const canEdit = p.source === 'manual';
 
@@ -75,7 +67,7 @@ export default function ProductCard({ p }: { p: Product }) {
     if (!(price > 0)) return setErr('Enter a valid price.');
     if (target !== undefined && !(target > 0)) return setErr('Target price must be a positive number.');
     if (f.url && !/^https?:\/\//.test(f.url)) return setErr('Link must start with http:// or https://');
-    if (f.url && f.store === 'Amazon.in' && !parseAmazonUrl(f.url)) return setErr('Paste the full amazon.in link that has /dp/CODE in it. Short amzn.in links will not work.');
+    if (f.url && f.store === 'Amazon.in' && !parseAmazonUrl(f.url)) return setErr('Paste the full amazon.in product URL containing /dp/ASIN. Short amzn.in links will not work.');
     updateProduct(p.id, {
       name: f.name.trim(),
       brand: f.brand.trim(),
