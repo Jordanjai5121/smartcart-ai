@@ -11,6 +11,13 @@ export default function Layout(){
     {nav.map(([to,l])=><NavLink key={to} to={to} end={to==='/'} className={cls}>{l}{badge(to)>0&&<span className="ml-2 rounded-full bg-brand-600 px-1.5 text-[10px] text-white">{badge(to)}</span>}</NavLink>)}
    </nav></aside>
   <div className="min-w-0 flex-1">
+   <div className="flex items-center justify-end border-b border-slate-100 bg-white px-4 py-2 sm:px-6">
+    <a href="https://www.amazon.in/" className="inline-flex min-h-10 items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-amber-100 focus:outline-none focus:ring-2 focus:ring-amber-400" aria-label="Open Amazon app or website">
+     <span className="flex h-6 w-6 items-center justify-center rounded-full bg-white text-base font-extrabold text-[#232f3e]">a</span>
+     <span>Open Amazon</span>
+     <span className="text-xs text-slate-500" aria-hidden="true">↗</span>
+    </a>
+   </div>
    <main className="p-4 sm:p-6"><Outlet/></main>
    <footer className="border-t px-4 py-4 text-center text-xs text-slate-500 sm:px-6">
     As an Amazon Associate I earn from qualifying purchases. Product prices shown in SmartCart AI may be entered manually and are not guaranteed to be live marketplace prices.
