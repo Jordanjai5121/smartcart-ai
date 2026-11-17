@@ -35,7 +35,7 @@ export function parseAmazonUrl(raw: string): { asin: string; url: string } | nul
     const m = u.pathname.match(/\/(?:dp|gp\/product)\/([A-Z0-9]{10})/i);
     if (!m) return null;
     const asin = m[1].toUpperCase();
-    return { asin, url: \`https://www.amazon.in/dp/\${asin}\` };
+    return { asin, url: 'https://www.amazon.in/dp/' + asin };
   } catch {
     return null;
   }
