@@ -8,7 +8,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon-192.png', 'icon-512.png'],
-      manifest: {
+      manifest: ({
         name: 'SmartCart AI',
         short_name: 'SmartCart',
         description: 'Track prices and shop smarter',
@@ -18,12 +18,23 @@ export default defineConfig({
         orientation: 'portrait',
         start_url: '/',
         scope: '/',
+        // Android Chrome can list the installed PWA in the native share sheet.
+        share_target: {
+          action: '/add',
+          method: 'GET',
+          enctype: 'application/x-www-form-urlencoded',
+          params: {
+            title: 'title',
+            text: 'text',
+            url: 'url',
+          },
+        },
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
         ]
-      }
+      } as any)
     })
   ]
 })
