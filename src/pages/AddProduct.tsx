@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useStore } from '../store/store';
 import { Field, PageHeader } from '../components/ui';
 import { CATEGORIES, STORES } from '../data/demo';
-import { parseAmazonUrl } from '../lib/amazon';
+import { isAmazonShortUrl, parseAmazonUrl } from '../lib/amazon';
 
 type ProductForm = {
   name: string;
@@ -37,7 +37,7 @@ function productNameFromShare(title: string, text: string, asin?: string): strin
   if (withoutUrl && !/^(check this out|look what i found|amazon)$/i.test(withoutUrl)) {
     return withoutUrl.slice(0, 120);
   }
-  return asin ? `Amazon product ${asin}` : '';
+  return asin ? 'Amazon product ' + asin : '';
 }
 
 export default function AddProduct() {
@@ -54,6 +54,7 @@ export default function AddProduct() {
     if (!sharedUrl) return;
 
     const parsed = parseAmazonUrl(sharedUrl);
+    const isShort = isAmazonShortUrl(sharedUrl);
     const title = productNameFromShare(
       searchParams.get('title') || '',
       searchParams.get('text') || '',
@@ -62,13 +63,15 @@ export default function AddProduct() {
 
     setF(old => ({
       ...old,
-      name: title || old.name,
+      name: title || old.name || (isShort ? 'Amazon item' : ''),
       store: 'Amazon.in',
       url: parsed?.url || sharedUrl,
     }));
     setNotice(parsed
-      ? 'Amazon product received from Share. Check the details and enter the price.'
-      : 'Shared link received. If this is an amzn.in short link, open the product in Amazon and copy its full product URL.');
+      ? 'Amazon product received. Check the details and enter the price.'
+      : isShort
+        ? 'Amazon short link received. Add the product name and price, then save.'
+        : 'Shared link received. Please check that it is an Amazon product link.');
     setErr('');
     setSearchParams({}, { replace: true });
   }, [searchParams, setSearchParams]);
@@ -86,12 +89,17 @@ export default function AddProduct() {
       const clip = await navigator.clipboard.readText();
       const link = findAmazonUrl(clip);
       const parsed = parseAmazonUrl(link);
-      if (!parsed) {
-        setErr('No full Amazon.in product link found. Copy the product URL from Amazon and try again.');
+      if (parsed) {
+        setF(old => ({ ...old, store: 'Amazon.in', url: parsed.url, name: old.name || 'Amazon product ' + parsed.asin }));
+        setNotice('Amazon product link pasted. Enter the price, then save.');
         return;
       }
-      setF(old => ({ ...old, store: 'Amazon.in', url: parsed.url, name: old.name || `Amazon product ${parsed.asin}` }));
-      setNotice('Amazon link pasted. Enter the product name and price, then save.');
+      if (isAmazonShortUrl(link)) {
+        setF(old => ({ ...old, store: 'Amazon.in', url: link, name: old.name || 'Amazon item' }));
+        setNotice('Amazon short link pasted successfully. Add or edit the product name and enter the price, then save.');
+        return;
+      }
+      setErr('This does not look like a supported Amazon.in product link. Copy the product link again and try.');
     } catch {
       setErr('Clipboard permission was blocked. Paste the link into the Product link field instead.');
     }
@@ -105,8 +113,8 @@ export default function AddProduct() {
     if (!(price > 0)) return setErr('Enter a valid price in ₹.');
     if (target !== undefined && !(target > 0)) return setErr('Target price must be a positive number.');
     if (f.url && !/^https?:\/\//.test(f.url)) return setErr('Product link must start with http:// or https://');
-    if (f.store === 'Amazon.in' && f.url && !parseAmazonUrl(f.url)) {
-      return setErr('Please use the full Amazon.in product URL containing /dp/ASIN. Short amzn.in links cannot be converted into a tagged product link here.');
+    if (f.store === 'Amazon.in' && f.url && !parseAmazonUrl(f.url) && !isAmazonShortUrl(f.url)) {
+      return setErr('Please enter a valid Amazon.in product link or amzn.in short link.');
     }
     addProduct({
       name: f.name.trim(),
@@ -137,8 +145,8 @@ export default function AddProduct() {
         <Field label="Current price (₹) *"><input className="input" inputMode="decimal" value={f.price} onChange={set('price')} placeholder="Enter current price" /></Field>
         <Field label="Target price (₹)"><input className="input" inputMode="decimal" value={f.target} onChange={set('target')} /></Field>
         <div className="sm:col-span-2">
-          <Field label="Amazon.in product link"><input className="input" value={f.url} onChange={set('url')} placeholder="https://www.amazon.in/.../dp/ASIN" /></Field>
-          <p className="mt-1 text-xs text-slate-500">SmartCart AI adds your Associates tracking tag to supported Amazon.in product links. Product prices are not fetched automatically.</p>
+          <Field label="Amazon.in product link"><input className="input" value={f.url} onChange={set('url')} placeholder="https://www.amazon.in/.../dp/ASIN or https://amzn.in/d/..." /></Field>
+          <p className="mt-1 text-xs text-slate-500">Amazon product links and amzn.in short links are supported. Product prices are entered manually.</p>
         </div>
         {err && <p className="text-sm text-red-600 sm:col-span-2">{err}</p>}
         <div className="sm:col-span-2"><button className="btn w-full">Save product</button></div>
