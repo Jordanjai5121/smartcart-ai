@@ -37,7 +37,7 @@ function productNameFromShare(title: string, text: string, asin?: string): strin
   if (withoutUrl && !/^(check this out|look what i found|amazon)$/i.test(withoutUrl)) {
     return withoutUrl.slice(0, 120);
   }
-  return asin ? \`Amazon product \${asin}\` : '';
+  return asin ? 'Amazon product ' + asin : '';
 }
 
 export default function AddProduct() {
@@ -90,7 +90,7 @@ export default function AddProduct() {
       const link = findAmazonUrl(clip);
       const parsed = parseAmazonUrl(link);
       if (parsed) {
-        setF(old => ({ ...old, store: 'Amazon.in', url: parsed.url, name: old.name || \`Amazon product \${parsed.asin}\` }));
+        setF(old => ({ ...old, store: 'Amazon.in', url: parsed.url, name: old.name || 'Amazon product ' + parsed.asin }));
         setNotice('Amazon product link pasted. Enter the price, then save.');
         return;
       }
