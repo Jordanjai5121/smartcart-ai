@@ -12,7 +12,7 @@ export default function AmazonSearch({ onPick }: { onPick: (url: string, asin: s
         <label className="label">1. Search on Amazon</label>
         <div className="flex gap-2">
           <input className="input" value={q} onChange={e => setQ(e.target.value)} placeholder="e.g. boAt Airdopes 141" />
-          <a className="btn" target="_blank" rel="noopener noreferrer" href={amazonSearchUrl(q || 'deals')}>Search</a>
+          <a className="btn" target="_blank" rel="sponsored nofollow noopener noreferrer" href={amazonSearchUrl(q || 'deals')}>Search</a>
         </div>
       </div>
       <div>

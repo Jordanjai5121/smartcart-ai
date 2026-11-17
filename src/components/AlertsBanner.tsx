@@ -1,10 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useStore } from '../store/store';
 import { inr } from '../lib/format';
-import { parseAmazonUrl } from '../lib/amazon';
+import { amazonAffiliateUrl } from '../lib/amazon';
 import { notifyOnce } from '../lib/notify';
-
-const ASSOCIATE_TAG = 'smartcartai0c-21';
 
 interface Alert {
   key: string;
@@ -41,7 +39,6 @@ export default function AlertsBanner() {
     if (!hitTarget && !bigDrop) continue;
 
     const amazon = offers.find(x => x.productId === p.id && x.store === 'Amazon.in' && x.url);
-    const parsed = amazon?.url ? parseAmazonUrl(amazon.url) : null;
 
     alerts.push({
       key: `${p.id}:${o.price}`,
@@ -49,7 +46,7 @@ export default function AlertsBanner() {
       price: o.price,
       hitTarget,
       dropPct,
-      buy: parsed ? `${parsed.url}?tag=${ASSOCIATE_TAG}` : undefined,
+      buy: amazonAffiliateUrl(amazon?.url),
     });
   }
 
