@@ -136,6 +136,23 @@ export default function AddProduct() {
           <p className="font-semibold text-slate-900">Quick add from Amazon</p>
           <p className="mt-1 text-sm text-slate-600">Android: Amazon → Share → SmartCart AI. iPhone: Amazon → Share → Copy, then return here and tap Paste Amazon link.</p>
           <button type="button" className="btn mt-3 w-full" onClick={pasteAmazonLink}>Paste Amazon link from clipboard</button>
+          <div className="mt-3">
+            <label htmlFor="amazon-product-url" className="mb-1 block text-sm font-medium text-slate-700">Amazon product URL (paste result appears here)</label>
+            <input
+              id="amazon-product-url"
+              className="input w-full bg-white"
+              type="url"
+              inputMode="url"
+              autoComplete="url"
+              value={f.url}
+              onChange={set('url')}
+              placeholder="Tap here and choose Paste, or use the button above"
+              aria-describedby="amazon-url-help"
+            />
+            <p id="amazon-url-help" className="mt-1 break-all text-xs text-slate-600">
+              {f.url ? 'Link pasted — check that the URL is correct.' : 'Your copied Amazon link will be shown in this box.'}
+            </p>
+          </div>
         </div>
         {notice && <p className="text-sm text-emerald-700 sm:col-span-2">{notice}</p>}
         <div className="sm:col-span-2"><Field label="Product name *"><input className="input" value={f.name} onChange={set('name')} placeholder="Product name" /></Field></div>
@@ -145,8 +162,7 @@ export default function AddProduct() {
         <Field label="Current price (₹) *"><input className="input" inputMode="decimal" value={f.price} onChange={set('price')} placeholder="Enter current price" /></Field>
         <Field label="Target price (₹)"><input className="input" inputMode="decimal" value={f.target} onChange={set('target')} /></Field>
         <div className="sm:col-span-2">
-          <Field label="Amazon.in product link"><input className="input" value={f.url} onChange={set('url')} placeholder="https://www.amazon.in/.../dp/ASIN or https://amzn.in/d/..." /></Field>
-          <p className="mt-1 text-xs text-slate-500">Amazon product links and amzn.in short links are supported. Product prices are entered manually.</p>
+          <p className="text-xs text-slate-500">Amazon product links and amzn.in short links are supported. Product prices are entered manually.</p>
         </div>
         {err && <p className="text-sm text-red-600 sm:col-span-2">{err}</p>}
         <div className="sm:col-span-2"><button className="btn w-full">Save product</button></div>
