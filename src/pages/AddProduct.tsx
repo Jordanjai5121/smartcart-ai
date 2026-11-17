@@ -26,18 +26,18 @@ const emptyForm: ProductForm = {
 };
 
 function findAmazonUrl(value: string): string {
-  const match = value.match(/https?:\\/\\/[^\\s<>"]+/i);
+  const match = value.match(/https?:\/\/[^\s<>"]+/i);
   return (match?.[0] ?? value).replace(/[),.;]+$/, '').trim();
 }
 
 function productNameFromShare(title: string, text: string, asin?: string): string {
   const cleanTitle = title.trim();
-  if (cleanTitle && !/^https?:\\/\\//i.test(cleanTitle)) return cleanTitle;
-  const withoutUrl = text.replace(/https?:\\/\\/[^\\s<>"]+/gi, '').trim();
+  if (cleanTitle && !/^https?:\/\//i.test(cleanTitle)) return cleanTitle;
+  const withoutUrl = text.replace(/https?:\/\/[^\s<>"]+/gi, '').trim();
   if (withoutUrl && !/^(check this out|look what i found|amazon)$/i.test(withoutUrl)) {
     return withoutUrl.slice(0, 120);
   }
-  return asin ? `Amazon product ${asin}` : '';
+  return asin ? \`Amazon product \${asin}\` : '';
 }
 
 export default function AddProduct() {
@@ -90,7 +90,7 @@ export default function AddProduct() {
       const link = findAmazonUrl(clip);
       const parsed = parseAmazonUrl(link);
       if (parsed) {
-        setF(old => ({ ...old, store: 'Amazon.in', url: parsed.url, name: old.name || `Amazon product ${parsed.asin}` }));
+        setF(old => ({ ...old, store: 'Amazon.in', url: parsed.url, name: old.name || \`Amazon product \${parsed.asin}\` }));
         setNotice('Amazon product link pasted. Enter the price, then save.');
         return;
       }
@@ -112,7 +112,7 @@ export default function AddProduct() {
     if (!f.name.trim()) return setErr('Product name is required.');
     if (!(price > 0)) return setErr('Enter a valid price in ₹.');
     if (target !== undefined && !(target > 0)) return setErr('Target price must be a positive number.');
-    if (f.url && !/^https?:\\/\\//.test(f.url)) return setErr('Product link must start with http:// or https://');
+    if (f.url && !/^https?:\/\//.test(f.url)) return setErr('Product link must start with http:// or https://');
     if (f.store === 'Amazon.in' && f.url && !parseAmazonUrl(f.url) && !isAmazonShortUrl(f.url)) {
       return setErr('Please enter a valid Amazon.in product link or amzn.in short link.');
     }
